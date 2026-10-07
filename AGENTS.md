@@ -7,7 +7,10 @@ This repository owns starter files and the catalog. `2found/2build` owns the
 - `templates/<id>/` adds runnable stack files. Common/template file collisions fail.
 - Use `__PROJECT_NAME__` and `__GIT_PROFILE__` for substitutions. These are the only tokens.
 - Keep secrets out of source. Only `.env.example` is shipped; real env files are ignored.
-- Update `catalog.json.version` for a release. Stable tags are `vX.Y.Z` and must match it.
+- Update `catalog.json.version` and push to `main` for a release. CI creates the
+  stable `vX.Y.Z` tag and publishes only after generated-project verification passes.
+  Retry via workflow dispatch on `main`; never move a published tag.
+  Manual stable tag pushes must match the catalog and verified commit.
 - Increment a template's integer `revision` when its files change. Common harness
   changes increment every affected template revision. An unrelated template release
   must not notify projects whose template revision is unchanged.

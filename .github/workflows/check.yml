@@ -15,6 +15,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.3.14
+      - name: Verify stable release policy
+        run: python3 tests/test_release.py
       - name: Verify Hono template
         working-directory: templates/hono-bun
         run: |
@@ -79,22 +81,18 @@ jobs:
       - run: python3 tests/verify.py
   release:
     needs: integration
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    concurrency:
+      group: starter-stable-release
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Check tag and publish stable release
+        with:
+          fetch-depth: 0
+      - name: Publish verified catalog version
         env:
           GH_TOKEN: ${{ github.token }}
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          set -euo pipefail
-          version="$(jq -r '.version' catalog.json)"
-          test "$REF_NAME" = "v$version"
-          if gh release view "$REF_NAME" >/dev/null 2>&1; then
-            echo "Release already exists; retaining its immutable contents."
-            exit 0
-          fi
-          gh release create "$REF_NAME" --verify-tag --title "$REF_NAME" --generate-notes
+        run: bash scripts/release.sh

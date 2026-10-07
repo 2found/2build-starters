@@ -3,9 +3,8 @@
 Start a project your coding agent can run, change and verify. Each starter combines
 a runnable stack with architecture guidance, checks, local QA and a 2build harness.
 
-**Status:** initial source preview. Remote bootstrap requires a published starter
-release and a `bbs` release containing these commands (planned minimum: 1.95.0).
-Both releases are pending. Local `--source` works with the matching CLI preview.
+**Stable release:** `0.1.0`. Requires `bbs` 1.95.0+ and Bun 1.3.14+.
+Bootstrap downloads a published release and verifies the generated project.
 
 ## Start with one agent prompt
 
@@ -21,7 +20,7 @@ Name any missing prerequisite. Do not commit, push or deploy.
 
 ## Commands
 
-Once both CLI and starter releases are published:
+Use the latest stable starter, or pin a specific release:
 
 ```bash
 bbs bootstrap my-api --template hono-bun --profile startup
@@ -29,13 +28,11 @@ bbs bootstrap another-api --template hono-bun --version 0.1.0
 bbs starter check --dir my-api --json
 ```
 
-During local development, use a binary built from the matching 2build change:
+For local starter development, use your installed CLI with a local checkout:
 
 ```bash
-# From the 2build checkout; inject the planned release version for this preview.
-go build -ldflags '-X github.com/2found/2build/internal/cmd.version=1.95.0' -o /tmp/bbs-starters ./cmd/bbs
 # From the directory containing the starter checkout:
-/tmp/bbs-starters bootstrap my-api --source ./2build-starters --template hono-bun --profile startup
+bbs bootstrap my-api --source ./2build-starters --template hono-bun --profile startup
 ```
 
 Bootstrap refuses existing targets, installs frozen dependencies, runs typecheck,
@@ -89,11 +86,16 @@ read-only update reporting.
 CI checks the template's frozen install, typecheck, tests and build immediately.
 Generated-project integration runs once the catalog's required CLI release is
 published; until then that job is explicitly skipped with a workflow notice.
-Use workflow dispatch to rerun it after the CLI release becomes available.
+Use workflow dispatch on `main` to retry verification and publication after the CLI
+release becomes available.
 
-Release order: publish a 2build CLI containing these commands first, then a stable
-starter `vX.Y.Z` release matching `catalog.json.version`. The starter release
-workflow requires generated-project verification before publishing.
+Release order: publish the required 2build CLI first, then update
+`catalog.json.version` and push to `main`. CI verifies the template and generated
+project, creates `vX.Y.Z` on that verified commit, and publishes a stable GitHub
+release. Existing stable releases are skipped; a same-version documentation push
+does not move the tag. Publication is serialized and cannot run after skipped or
+failed integration. A tag left by a failed publication can be retried only when it
+still names the verified commit. Manual `vX.Y.Z` tag pushes remain supported.
 Stable tags/releases must remain immutable. Increment affected template revisions
 and extend their upgrade guide for every applicable change; common harness edits
 affect all templates that consume them. See AGENTS.md for the authoring contract.
