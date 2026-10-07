@@ -1,0 +1,16 @@
+version: 1
+url: http://localhost:3000
+start: bun run dev
+check: bun run typecheck && bun run test && bun run build
+flows: >
+  GET /healthz and /readyz return 200;
+  POST /greetings with a name returns a greeting;
+  blank name, malformed JSON and unsupported locale return 400;
+  unknown route returns 404 with the error envelope and request ID.
+services:
+  api:
+    dir: .
+    runtime: bun
+    dev: bun run dev
+    check: bun run typecheck && bun run test && bun run build
+notes: API-only target; verify with HTTP requests, no browser or login required.

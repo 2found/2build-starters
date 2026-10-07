@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.babysit/.env
+.babysit/qa.local.yaml
+.babysit/worktrees/
+.babysit/review-reports/

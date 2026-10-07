@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.babysit/.env
+.babysit/qa.local.yaml
+__pycache__/

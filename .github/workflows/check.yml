@@ -1,0 +1,100 @@
+name: Verify starters
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - name: Verify Hono template
+        working-directory: templates/hono-bun
+        run: |
+          bun install --frozen-lockfile
+          bun run typecheck
+          bun run test
+          bun run build
+  cli:
+    runs-on: ubuntu-latest
+    outputs:
+      available: ${{ steps.release.outputs.available }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required CLI release availability
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cli_version="$(jq -r '.min_cli_version' catalog.json)"
+          if metadata="$(gh release view "v$cli_version" --repo 2found/2build \
+              --json isDraft,isPrerelease 2>"$RUNNER_TEMP/cli-release-error")"; then
+            available="$(jq -r '(.isDraft == false) and (.isPrerelease == false)' <<< "$metadata")"
+          else
+            error="$(cat "$RUNNER_TEMP/cli-release-error")"
+            case "$error" in
+              *"release not found"*) available=false ;;
+              *) echo "$error" >&2; exit 1 ;;
+            esac
+          fi
+          echo "available=$available" >> "$GITHUB_OUTPUT"
+          if [ "$available" != true ]; then
+            echo "::notice::bbs v$cli_version is not published yet; template checks run, generated-project integration is pending."
+            echo "Generated-project integration is pending bbs v$cli_version. Template checks run independently." >> "$GITHUB_STEP_SUMMARY"
+          fi
+  integration:
+    needs: [template, cli]
+    if: needs.cli.outputs.available == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install catalog's required CLI release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cli_version="$(jq -r '.min_cli_version' catalog.json)"
+          mkdir -p "$RUNNER_TEMP/bbs-release"
+          gh release download "v$cli_version" --repo 2found/2build \
+            --pattern "bbs_${cli_version}_linux_amd64.tar.gz" --pattern checksums.txt \
+            --dir "$RUNNER_TEMP/bbs-release"
+          cd "$RUNNER_TEMP/bbs-release"
+          sha256sum --check --ignore-missing checksums.txt
+          tar -xzf "bbs_${cli_version}_linux_amd64.tar.gz" bbs
+          echo "BBS_BIN=$RUNNER_TEMP/bbs-release/bbs" >> "$GITHUB_ENV"
+      - run: python3 tests/verify.py
+  release:
+    needs: integration
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check tag and publish stable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="$(jq -r '.version' catalog.json)"
+          test "$REF_NAME" = "v$version"
+          if gh release view "$REF_NAME" >/dev/null 2>&1; then
+            echo "Release already exists; retaining its immutable contents."
+            exit 0
+          fi
+          gh release create "$REF_NAME" --verify-tag --title "$REF_NAME" --generate-notes

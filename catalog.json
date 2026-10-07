@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "source": "2found/2build-starters",
+  "version": "0.1.0",
+  "min_cli_version": "1.95.0",
+  "templates": {
+    "hono-bun": {
+      "path": "templates/hono-bun",
+      "revision": 1,
+      "summary": "Initial Bun/Hono starter with request validation, consistent errors, request IDs and a verified 2build harness.",
+      "upgrade": "upgrades/hono-bun.md",
+      "dev": ["bun", "run", "dev"],
+      "verify": [
+        ["bun", "install", "--frozen-lockfile"],
+        ["bun", "run", "typecheck"],
+        ["bun", "run", "test"],
+        ["bun", "run", "build"]
+      ]
+    }
+  }
+}
