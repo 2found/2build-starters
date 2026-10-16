@@ -14,7 +14,7 @@ install, dev and check commands for this stack.
 
 ## 2build
 
-Git policy: `.babysit/git-flow.yaml`. Local QA target/checks: `.babysit/qa.yaml`.
+Git: agents leave work uncommitted; Foreman commits once per phase. Local QA target/checks: `.babysit/qa.yaml`.
 Use the installed 2build skills for planning, implementation, review and QA;
 install instructions: https://github.com/2found/2build/blob/main/docs/install.md.
 

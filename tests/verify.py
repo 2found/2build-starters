@@ -92,14 +92,14 @@ def main():
         work = Path(temporary)
         for template_id in catalog["templates"]:
             project = work / f"sample-{template_id}"
-            result = bbs("bootstrap", project, "--template", template_id, "--profile", "pet",
+            result = bbs("bootstrap", project, "--template", template_id,
                          "--source", ROOT, "--version", catalog["version"], "--json")
             handoff = json.loads(result.stdout)
             assert handoff["verified"] is True
             assert handoff["starter"]["release"] == catalog["version"]
             assert handoff["starter"]["revision"].startswith("sha256:")
             assert json.loads((project / "package.json").read_text())["name"] == project.name
-            assert (project / ".babysit/git-flow.yaml").read_text().startswith("profile: pet")
+            assert not (project / ".babysit/git-flow.yaml").exists()
             assert not (project / ".env").exists()
             before = files(project)
             bbs("bootstrap", project, "--source", ROOT, success=False)

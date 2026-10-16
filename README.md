@@ -10,7 +10,7 @@ Bootstrap downloads a published release and verifies the generated project.
 
 ```text
 Create a new project named my-api using the hono-bun starter from 2build starters.
-Use bbs bootstrap with the startup git profile; install 2build for my current agent
+Use bbs bootstrap; install 2build for my current agent
 following https://raw.githubusercontent.com/2found/2build/main/docs/install.md if
 needed. Check bbs bootstrap --help exists and that its version meets the catalog.
 Read the generated AGENTS.md, verify the local API with one successful and one
@@ -23,7 +23,7 @@ Name any missing prerequisite. Do not commit, push or deploy.
 Use the latest stable starter, or pin a specific release:
 
 ```bash
-bbs bootstrap my-api --template hono-bun --profile startup
+bbs bootstrap my-api --template hono-bun
 bbs bootstrap another-api --template hono-bun --version 0.1.0
 bbs starter check --dir my-api --json
 ```
@@ -32,7 +32,7 @@ For local starter development, use your installed CLI with a local checkout:
 
 ```bash
 # From the directory containing the starter checkout:
-bbs bootstrap my-api --source ./2build-starters --template hono-bun --profile startup
+bbs bootstrap my-api --source ./2build-starters --template hono-bun
 ```
 
 Bootstrap refuses existing targets, installs frozen dependencies, runs typecheck,
@@ -45,7 +45,6 @@ has not been proved. Git init, remotes, commits and deployment are left to the c
 `hono-bun` provides Bun, Hono, TypeScript and Zod; a stateless example module;
 request IDs, logging, consistent errors; health/readiness routes; tests and CI.
 Bun 1.3.14+ is required. No database, auth, UI or external service is required.
-The default git profile is `startup`; `pet` and `enterprise` are also supported.
 
 `common/` owns the stack-neutral agent harness. `templates/` owns stack files.
 `catalog.json` owns the release version, template revisions and command arrays.

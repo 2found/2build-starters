@@ -5,7 +5,7 @@ This repository owns starter files and the catalog. `2found/2build` owns the
 
 - `common/` is copied into every generated project; keep its rules stack-neutral.
 - `templates/<id>/` adds runnable stack files. Common/template file collisions fail.
-- Use `__PROJECT_NAME__` and `__GIT_PROFILE__` for substitutions. These are the only tokens.
+- Use `__PROJECT_NAME__` for substitutions. It is the only token.
 - Keep secrets out of source. Only `.env.example` is shipped; real env files are ignored.
 - Update `catalog.json.version` and push to `main` for a release. CI creates the
   stable `vX.Y.Z` tag and publishes only after generated-project verification passes.
