@@ -3,7 +3,8 @@
 Start a project your coding agent can run, change and verify. Each starter combines
 a runnable stack with architecture guidance, checks, local QA and a 2build harness.
 
-**Stable release:** `0.1.0`. Requires `bbs` 1.95.0+ and Bun 1.3.14+.
+**Stable release:** `0.2.0`. Requires `bbs` 1.118.0+ (1.95.0+ for `0.1.0`), plus
+Bun 1.3.14+ for `hono-bun` or Node.js 22+ and pnpm 10+ for `nextjs-pnpm`.
 Bootstrap downloads a published release and verifies the generated project.
 
 ## Start with one agent prompt
@@ -24,7 +25,8 @@ Use the latest stable starter, or pin a specific release:
 
 ```bash
 bbs bootstrap my-api --template hono-bun
-bbs bootstrap another-api --template hono-bun --version 0.1.0
+bbs bootstrap another-api --template hono-bun --version 0.2.0
+bbs bootstrap my-web --template nextjs-pnpm
 bbs starter check --dir my-api --json
 ```
 
@@ -40,16 +42,27 @@ tests and build, then publishes the generated directory. Failure leaves no proje
 behind. `--no-verify` generates files only and reports `verified: false`; readiness
 has not been proved. Git init, remotes, commits and deployment are left to the caller.
 
-## Available starter
+## Available starters
 
-`hono-bun` provides Bun, Hono, TypeScript and Zod; a stateless example module;
-request IDs, logging, consistent errors; health/readiness routes; tests and CI.
-Bun 1.3.14+ is required. No database, auth, UI or external service is required.
+Every generated project passes 2build's `harness-audit` out of the box: an
+`AGENTS.md` that maps the architecture, design (when there is a UI), run, verify
+and deploy/release owners; `.babysit/qa.yaml` with a non-happy-path flow; CI that
+runs the same checks; and the `## 2build` agent pointers.
 
-`common/` owns the stack-neutral agent harness. `templates/` owns stack files.
-`catalog.json` owns the release version, template revisions and command arrays.
-The CLI implementation lives in `2found/2build`; skills are installed there,
-never vendored into a starter.
+- **`hono-bun`** — Bun, Hono, TypeScript and Zod; a stateless example module;
+  request IDs, logging, consistent errors; health/readiness routes; tests and CI.
+  Architecture in `docs/ARCHITECTURE-API.md`. No database, auth, UI or external
+  service is required.
+- **`nextjs-pnpm`** — Next.js App Router, React, Tailwind v4, TanStack Query and
+  Zod. Bootstrap runs `create-next-app@latest`, then overlays the harness, a
+  module-per-route app shell, design tokens (`DESIGN.md`), `apiFetch` for the API
+  error envelope and TanStack Query load-limit defaults, with Vitest tests.
+  Architecture in `docs/ARCHITECT-WEB.md`. Needs registry access at bootstrap.
+
+`common/` owns the stack-neutral harness files. `templates/` owns stack files and
+each project's `AGENTS.md`. `catalog.json` owns the release version, template
+revisions and scaffold/dev/verify command arrays. The CLI implementation lives in
+`2found/2build`; skills are installed there, never vendored into a starter.
 
 ## Knowing about updates
 
@@ -77,12 +90,15 @@ the generated application.
 
 ## Maintainers
 
-Run `BBS_BIN=/absolute/path/to/bbs python3 tests/verify.py` from this repository.
-It creates real projects, runs their frozen dependency install and checks, probes
-the built local API including rejected inputs, and verifies overwrite refusal and
+Run `python3 tests/harness.py` (static harness-audit contract for every template)
+and `BBS_BIN=/absolute/path/to/bbs python3 tests/verify.py` from this repository.
+`verify.py` creates real projects, runs their scaffold, frozen dependency install
+and checks, applies the harness contract to the generated output, probes the built
+local app including rejected inputs / a 404, and verifies overwrite refusal and
 read-only update reporting.
 
-CI checks the template's frozen install, typecheck, tests and build immediately.
+CI checks the harness contract and the vendored template's frozen install,
+typecheck, tests and build immediately.
 Generated-project integration runs once the catalog's required CLI release is
 published; until then that job is explicitly skipped with a workflow notice.
 Use workflow dispatch on `main` to retry verification and publication after the CLI

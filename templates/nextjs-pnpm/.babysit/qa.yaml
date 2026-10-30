@@ -1,0 +1,15 @@
+version: 1
+url: http://localhost:3100
+start: pnpm dev
+check: pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
+flows: >
+  / renders the home page with no console errors in light and dark mode;
+  an unknown path such as /missing returns 404 with the not-found page;
+  the layout has no horizontal scroll at 360px width.
+services:
+  web:
+    dir: .
+    runtime: pnpm
+    dev: pnpm dev
+    check: pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
+notes: Web target; verify with /bbs:browse. No login exists yet. Rules in AGENTS.md; architecture in docs/ARCHITECT-WEB.md; visuals in DESIGN.md.

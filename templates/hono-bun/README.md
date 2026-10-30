@@ -27,7 +27,9 @@ bun run start
 ```
 
 Stop the dev server before `start`; both use the same port. `start` runs the built
-bundle. Architecture and verification contracts live in `docs/`.
+bundle. Agent rules live in [AGENTS.md](AGENTS.md); architecture in
+[docs/ARCHITECTURE-API.md](docs/ARCHITECTURE-API.md); verification in
+[docs/VERIFY.md](docs/VERIFY.md).
 
 Starter source/version: `.babysit/starter.lock.yaml`. `bbs starter check --json`
 reports newer relevant releases without changing this project. Dependency updates

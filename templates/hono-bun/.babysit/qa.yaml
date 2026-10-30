@@ -13,4 +13,4 @@ services:
     runtime: bun
     dev: bun run dev
     check: bun run typecheck && bun run test && bun run build
-notes: API-only target; verify with HTTP requests, no browser or login required.
+notes: API-only target; verify with HTTP requests, no browser or login required. Rules in AGENTS.md; architecture in docs/ARCHITECTURE-API.md.

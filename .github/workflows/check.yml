@@ -17,6 +17,8 @@ jobs:
           bun-version: 1.3.14
       - name: Verify stable release policy
         run: python3 tests/test_release.py
+      - name: Verify harness-audit contract
+        run: python3 tests/harness.py
       - name: Verify Hono template
         working-directory: templates/hono-bun
         run: |
@@ -64,6 +66,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Install catalog's required CLI release
         env:
           GH_TOKEN: ${{ github.token }}
