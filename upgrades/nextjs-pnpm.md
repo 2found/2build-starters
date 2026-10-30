@@ -1,5 +1,13 @@
 # nextjs-pnpm upgrade guide
 
+## 0.3.0 — template revision 2
+
+Docs only. `docs/ARCHITECT-WEB.md` gains a **Client speed** section (client-side
+URL state, shared query definitions with intent prefetch, incremental paging,
+self-stopping polls, typing outside React state, no setState in effects, shaped
+skeletons, measure before restructuring). Copy the section into the project's
+`docs/ARCHITECT-WEB.md`; no code change is required.
+
 ## 0.2.0 — template revision 1
 
 Initial release; no earlier version to migrate. Requires bbs 1.118.0+ (catalog

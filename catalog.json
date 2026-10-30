@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "2found/2build-starters",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "min_cli_version": "1.118.0",
   "templates": {
     "hono-bun": {
@@ -39,7 +39,7 @@
     },
     "nextjs-pnpm": {
       "path": "templates/nextjs-pnpm",
-      "revision": 1,
+      "revision": 2,
       "summary": "Next.js App Router web app scaffolded by create-next-app@latest at bootstrap, with docs/ARCHITECT-WEB.md, DESIGN.md tokens, TanStack Query load-limit defaults, apiFetch and a verified 2build harness.",
       "upgrade": "upgrades/nextjs-pnpm.md",
       "scaffold": [

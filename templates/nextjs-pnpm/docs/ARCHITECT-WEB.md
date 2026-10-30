@@ -80,6 +80,37 @@ plan — is a client island that fetches after hydration.
 - Login/logout should be full document loads, which discard viewer-scoped cache.
   **An SPA-style login/logout must call `queryClient.clear()`.**
 
+## Client speed
+
+Rules for interactive client screens, applied when you build one:
+
+- **UI state in the URL stays client-side.** Tabs, selection and filters are read
+  with `useSearchParams` inside `<Suspense>` and written with
+  `window.history.replaceState`, never a `router.replace` that re-renders the
+  route on the server. A per-id page whose data is client-fetched is a static
+  frame (`generateStaticParams` returns `[]`) plus client queries.
+- **One definition per query.** A function returns `{ queryKey, queryFn, … }`;
+  hooks, prefetch and tests spread it. Links to a heavy screen prefetch it on
+  hover/focus with `queryClient.prefetchQuery`.
+- **Fetch only what changed.** A growing list reuses the cached window and
+  fetches only the new page; text search debounces (~250 ms) and clearing applies
+  at once; `placeholderData` keeps old rows only within the same scope. Immutable
+  content uses `staleTime: Infinity` and prefetches the next item.
+- **Polling stops itself.** `refetchInterval` is a function returning `false` in a
+  terminal state; retry network errors, never a 4xx.
+- **Typing never re-renders the screen.** Per-keystroke text lives in an external
+  store read with `useSyncExternalStore`; containers subscribe to a derived value
+  (dirty or not) and handlers read the current text when they act.
+- **No setState in an effect for derived state.** Reset on a prop change during
+  render (`if (value !== prev) { setPrev(value); … }`); read browser state
+  (storage, `matchMedia`, `<html>` class) with `useSyncExternalStore` and a server
+  snapshot; use `useWatch`, not `form.watch`. Lint stays at zero warnings; a
+  justified exception carries an inline reason.
+- **Waits keep their shape.** A loading screen renders a skeleton of its own
+  layout inside the app shell, never a bare full-screen spinner.
+- **Measure before restructuring.** A performance change cites before/after
+  numbers from a production build (render count, navigation ms, request list).
+
 ## Search and lists
 
 User-facing search is fuzzy and served by an API index; never `.includes()` over a
